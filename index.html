@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Luces 930E">
+  <title>Panel Komatsu 930E-4</title>
+  <style>
+    :root {
+      --bg: #0d0f12;
+      --card-bg: #181b20;
+      --border-panel: #272c35;
+      --text: #ffffff;
+      --text-dim: #9aa0a6;
+      --accent-red: #ff4757;
+      --accent-yellow: #ffa502;
+      --accent-green: #2ed573;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+      margin: 0;
+      padding: env(safe-area-inset-top) 8px calc(env(safe-area-inset-bottom) + 16px) 8px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    header {
+      width: 100%;
+      max-width: 480px;
+      padding: 14px 4px 10px 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.1rem;
+      letter-spacing: 0.5px;
+      font-weight: 700;
+    }
+    header span {
+      background: #1f242d;
+      color: #ffa502;
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 6px;
+      border: 1px solid #323846;
+    }
