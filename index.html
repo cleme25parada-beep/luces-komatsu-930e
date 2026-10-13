@@ -53,3 +53,423 @@
       border-radius: 6px;
       border: 1px solid #323846;
     }
+    .instruction {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      margin-bottom: 12px;
+      text-align: center;
+    }
+    .panel-frame {
+      width: 100%;
+      max-width: 480px;
+      background: #16181d;
+      border: 3px solid #232730;
+      border-radius: 14px;
+      padding: 8px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .panel-row {
+      display: grid;
+      gap: 5px;
+      width: 100%;
+    }
+    .panel-row-6 { grid-template-columns: repeat(6, 1fr); }
+    .panel-row-7 { grid-template-columns: repeat(7, 1fr); }
+
+    .btn-light {
+      aspect-ratio: 1/1;
+      border-radius: 7px;
+      background: #20232a;
+      border: 1.5px solid #363b47;
+      padding: 2px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      transition: transform 0.12s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+      position: relative;
+    }
+    .btn-light:active {
+      transform: scale(0.92);
+      border-color: #fff;
+      box-shadow: 0 0 14px rgba(255,255,255,0.45);
+    }
+    .btn-light img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 5px;
+      pointer-events: none;
+      display: block;
+    }
+    .btn-light.disabled {
+      opacity: 0.28;
+      cursor: default;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.72);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: none;
+      align-items: flex-end;
+      z-index: 9999;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-sheet {
+      width: 100%;
+      background: var(--card-bg);
+      border-radius: 20px 20px 0 0;
+      padding: 16px 20px calc(24px + env(safe-area-inset-bottom)) 20px;
+      max-height: 86vh;
+      overflow-y: auto;
+      box-shadow: 0 -8px 30px rgba(0,0,0,0.7);
+      animation: sheetUp 0.22s ease-out;
+    }
+    @keyframes sheetUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    .sheet-drag {
+      width: 36px;
+      height: 4px;
+      background: #474e5d;
+      border-radius: 2px;
+      margin: 0 auto 14px auto;
+    }
+    .sheet-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      border-bottom: 1px solid #282d38;
+      padding-bottom: 14px;
+      margin-bottom: 14px;
+    }
+    .sheet-img-wrapper {
+      width: 58px;
+      height: 58px;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 2px solid #3c4352;
+      flex-shrink: 0;
+      background: #000;
+    }
+    .sheet-img-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .sheet-titles h2 {
+      margin: 0;
+      font-size: 1.05rem;
+      line-height: 1.3;
+      color: #fff;
+    }
+    .sheet-titles p {
+      margin: 4px 0 0 0;
+      font-size: 0.78rem;
+      color: var(--text-dim);
+    }
+    .box-info {
+      background: #101216;
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 9px;
+      border-left: 4px solid #3867d6;
+    }
+    .box-info.consec { border-left-color: var(--accent-red); }
+    .box-info.action { border-left-color: var(--accent-green); }
+    .box-info.nota { border-left-color: var(--accent-yellow); }
+    .box-info .lbl {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.6px;
+      color: var(--text-dim);
+      margin-bottom: 4px;
+    }
+    .box-info .val {
+      font-size: 0.88rem;
+      line-height: 1.4;
+      color: #f1f2f6;
+    }
+    .btn-dismiss {
+      width: 100%;
+      margin-top: 14px;
+      padding: 12px;
+      background: #2b313d;
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>KOMATSU 930E-4</h1>
+    <span>31 LUCES</span>
+  </header>
+  <div class="instruction">Toca cualquier luz para ver significado, consecuencia y acción</div>
+
+  <div class="panel-frame" id="gridContainer"></div>
+
+  <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="sheet-drag"></div>
+      <div class="sheet-header">
+        <div class="sheet-img-wrapper">
+          <img id="mImg" src="" alt="Icono">
+        </div>
+        <div class="sheet-titles">
+          <h2 id="mTitle">Nombre Luz</h2>
+          <p id="mCategory">Panel de advertencias Komatsu</p>
+        </div>
+      </div>
+      
+      <div class="box-info">
+        <div class="lbl">Significado</div>
+        <div class="val" id="mSignificado"></div>
+      </div>
+
+      <div class="box-info consec">
+        <div class="lbl">Consecuencias</div>
+        <div class="val" id="mConsecuencias"></div>
+      </div>
+
+      <div class="box-info action">
+        <div class="lbl">Acción Requerida</div>
+        <div class="val" id="mAccion"></div>
+      </div>
+
+      <div class="box-info nota" id="mNotaContainer" style="display:none;">
+        <div class="lbl">Nota / Excepciones</div>
+        <div class="val" id="mNota"></div>
+      </div>
+
+      <button class="btn-dismiss" onclick="closeModal()">Cerrar</button>
+    </div>
+  </div>
+
+  <script>
+    const panelImgUrl = "WhatsApp Image 2026-10-13 at 15.02.56.jpeg";
+
+    const lightsData = [
+      { r: 0, c: 0, color: "red", name: "Alta temperatura de aceite hidráulico",
+        significado: "Alta temperatura de aceite hidráulico.",
+        consecuencias: "Prolongar la operación podría causar daños al equipo, debido a que esta temperatura está asociada a la temperatura del sistema de frenos de servicio.",
+        accion: "Detener el camión en forma segura y detener el motor." },
+      { r: 0, c: 1, color: "red", name: "Bajo nivel de aceite en estanque hidráulico",
+        significado: "Bajo nivel de aceite en el estanque hidráulico.",
+        consecuencias: "Problemas con el suministro de aceite al grupo de bombas, daño por cavitación, etc.",
+        accion: "Detener el camión en forma segura y apagar el motor." },
+      { r: 0, c: 2, color: "yellow", name: "Freno de estacionamiento aplicado",
+        significado: "Indicador de freno de estacionamiento aplicado.",
+        consecuencias: "Desgaste en los discos de frenos producto de aplicar estos con el camión en movimiento. Daño crítico al sistema.",
+        accion: "Aplicación solo con el camión completamente detenido." },
+      { r: 0, c: 3, color: "yellow", name: "Falla en motor de arranque",
+        significado: "Indicador de falla en uno de los motores de arranque.",
+        consecuencias: "Continuar operando por un período prolongado puede sobrecargar y dañar el motor que está funcionando.",
+        accion: "Solicitar asistencia técnica." },
+      { r: 0, c: 4, color: "red", name: "Sin energía / Sin retardo / Sin propulsión",
+        significado: "Sin energía.. Sin retardo.. Sin propulsión.",
+        consecuencias: "Perder el control, daños en el sistema eléctrico de propulsión y retardo (alternador, MT, parrillas, tableros eléctricos, etc.).",
+        accion: "Detener el camión con frenos de servicio en forma segura, detener el motor y esperar asistencia técnica." },
+      { r: 0, c: 5, color: "red", name: "Sin propulsión (Corte)",
+        significado: "Sin propulsión.",
+        consecuencias: "Puede perder el control del equipo, puede dañar el sistema de propulsión.",
+        accion: "Detener el camión en forma segura y solicitar asistencia técnica." },
+
+      { r: 1, c: 0, color: "red", name: "Baja presión en sistema de dirección",
+        significado: "Baja presión en el sistema de dirección.",
+        consecuencias: "Problemas en el sistema hidráulico de dirección, de continuar la operación del camión, podría quedar sin dirección.",
+        accion: "Detener el camión en forma segura y detener el motor.",
+        nota: "Es normal que la luz encienda en algunas condiciones de operación a bajas RPM." },
+      { r: 1, c: 1, color: "yellow", name: "Baja presión de lubricación automática",
+        significado: "Baja presión del sistema de lubricación automática.",
+        consecuencias: "La presión en el sistema de lubricación está por debajo de 2000 psi.",
+        accion: "Solicitar asistencia técnica." },
+      { r: 1, c: 2, color: "yellow", name: "Freno de servicio o traba aplicado",
+        significado: "Indicador de freno de servicio o traba aplicado.",
+        consecuencias: "Desgaste en los discos de frenos o incorrecta aplicación de los frenos de servicio. Daño crítico al sistema.",
+        accion: "Aplicar los frenos de servicio de acuerdo a requerimiento.",
+        nota: "¡El correcto uso del freno de servicio depende del correcto uso del retardador!" },
+      { r: 1, c: 3, color: "yellow", name: "Luces de reversa manual",
+        significado: "Luces de reversa, de accionamiento manual.",
+        consecuencias: "Operar con deficiencia en el sistema de luces puede generar un problema mayor o una señal incorrecta sobre su uso.",
+        accion: "Activar de acuerdo a requerimiento o pruebas." },
+      { r: 1, c: 4, color: "yellow", name: "Advertencia en sistema de propulsión",
+        significado: "Advertencia en el sistema de propulsión.",
+        consecuencias: "Probable falla en el sistema de propulsión.",
+        accion: "Detener el camión y solicitar asistencia técnica." },
+      { r: 1, c: 5, color: "yellow", name: "Sistema de propulsión en descanso",
+        significado: "Sistema de propulsión en descanso.",
+        consecuencias: "Al estar la luz encendida el equipo no tiene propulsión, al estar apagada el gabinete eléctrico se encuentra energizado.",
+        accion: "No aplicar propulsión (luz encendida). En esta condición se puede intervenir el equipo técnicamente; el sistema se encuentra sin alto voltaje." },
+
+      { r: 2, c: 0, color: "red", name: "Baja precarga acumuladores de dirección",
+        significado: "Baja presión de precarga en los acumuladores de dirección.",
+        consecuencias: "Problemas con la precarga de nitrógeno de los acumuladores de dirección, riesgo de quedar sin dirección.",
+        accion: "Detener el camión en forma segura, no realice maniobras con el switch de arranque (ON / OFF)." },
+      { r: 2, c: 1, color: "yellow", name: "Disyuntor activado",
+        significado: "Disyuntor activado.",
+        consecuencias: "Indica una falla en el circuito de 24 volt; esta puede ser cortocircuito en el sistema.",
+        accion: "Solicitar asistencia técnica." },
+      { r: 2, c: 2, color: "yellow", name: "Camión con tolva arriba",
+        significado: "Indicador del camión con tolva arriba.",
+        consecuencias: "Mover el camión con tolva arriba puede dañar gravemente la estructura, pasadores, cilindros de levante y chasis.",
+        accion: "Mover el camión cuando sea estrictamente necesario, este no debe sobrepasar los 8 kph." },
+      { r: 2, c: 3, color: "yellow", name: "Detención programada de motor",
+        significado: "Indicador de detención programada de motor.",
+        consecuencias: "Si el sistema está inoperativo, al detener el motor puede acortar la vida útil de los componentes.",
+        accion: "Una vez estacionado, al detener el motor se encenderá automáticamente la luz indicadora, dependiendo de 3 condiciones: 1. T° refrigerante, 2. RPM, 3. % de combustible." },
+      { r: 2, c: 4, color: "yellow", name: "Alta temperatura en propulsión",
+        significado: "Alta temperatura en el sistema de propulsión.",
+        consecuencias: "Daño en el sistema de propulsión, por alta temperatura.",
+        accion: "Solicitar asistencia técnica, o cambiar la condición de operación." },
+      { r: 2, c: 5, color: "yellow", name: "Propulsión no preparado",
+        significado: "Sistema de propulsión no preparado.",
+        consecuencias: "Al estar la luz encendida el equipo no tiene propulsión; no aplicar propulsión, puede producir daños en el sistema.",
+        accion: "Aplicar propulsión solo hasta que la luz se encuentre apagada." },
+
+      { r: 3, c: 0, color: "disabled", name: "Espacio sin asignar",
+        significado: "Espacio no asignado / deshabilitado en este modelo.",
+        consecuencias: "Ninguna.", accion: "Ninguna." },
+      { r: 3, c: 1, color: "yellow", name: "Filtro de aceite hidráulico saturado",
+        significado: "Filtro de aceite hidráulico saturado, o aceite hidráulico muy frío.",
+        consecuencias: "Daños en componentes del sistema hidráulico; el filtro está derivando el aceite hidráulico por la válvula by-pass, significa que el aceite no está siendo filtrado.",
+        accion: "Realizar maniobras para estabilizar la temperatura de trabajo del aceite o solicitar asistencia técnica." },
+      { r: 3, c: 2, color: "yellow", name: "Retardador dinámico aplicado",
+        significado: "Indicador de la aplicación del retardador dinámico.",
+        consecuencias: "Pérdida de control del equipo al aplicar fuera de la curva de retardo.",
+        accion: "Aplicación efectiva siempre dentro de la curva de retardo.",
+        nota: "¡Retardo efectivo sobre 4.8 kph o 3 millas por hora!" },
+      { r: 3, c: 3, color: "yellow", name: "RSC activado",
+        significado: "Indicador de RSC activado.",
+        consecuencias: "Operar fuera de la curva de retardo aumenta el riesgo de perder el control de velocidad del camión.",
+        accion: "Se debe operar con el RSC activado." },
+      { r: 3, c: 4, color: "red", name: "Falla módulo interface (IM)",
+        significado: "Falla en el módulo interface (IM).",
+        consecuencias: "Seguir operando el camión en esta condición puede afectar la comunicación entre controladores y perder el control del camión.",
+        accion: "Detener el camión en forma segura y solicitar asistencia técnica." },
+      { r: 3, c: 5, color: "yellow", name: "Propulsión reducida",
+        significado: "Propulsión reducida.",
+        consecuencias: "Se ha producido una falla en el sistema de propulsión, el equipo se encuentra operando solo con un MT.",
+        accion: "Velocidad reducida, solo para traslado a taller." },
+      { r: 3, c: 6, color: "yellow", name: "Test del sistema de frenos",
+        significado: "Test del sistema de frenos.",
+        consecuencias: "Posibilidad de falla en el sistema de frenos que no sea advertida, y pérdida de control del equipo.",
+        accion: "Aplicar procedimiento, detener el equipo en un lugar seguro." },
+
+      { r: 4, c: 0, color: "red", name: "Baja presión hidráulica de frenos",
+        significado: "Baja presión en el sistema hidráulico de frenos.",
+        consecuencias: "Problemas con la presión de trabajo del sistema hidráulico de frenos de servicio; de continuar la operación puede quedar sin frenos de servicio.",
+        accion: "Detener el camión en forma segura y detener el motor." },
+      { r: 4, c: 1, color: "yellow", name: "Bajo nivel de combustible",
+        significado: "Bajo nivel de combustible.",
+        consecuencias: "Fallas en el sistema de inyección y pérdida de potencia del motor.",
+        accion: "Rellenar el depósito de combustible." },
+      { r: 4, c: 2, color: "red", name: "Detención motor diésel por falla",
+        significado: "Detención del motor diésel por falla.",
+        consecuencias: "Prolongar la operación puede ocasionar fallas graves en el motor; si se detiene el motor se pierde el retardo y sistema hidráulico.",
+        accion: "Detener el movimiento del camión; si es necesario detener el motor con el interruptor de parada de emergencia." },
+      { r: 4, c: 3, color: "yellow", name: "Revisar motor diésel",
+        significado: "Revisar motor diésel.",
+        consecuencias: "Prolongar la operación podría ocasionar una falla grave en el motor diésel.",
+        accion: "Solicitar asistencia técnica." },
+      { r: 4, c: 4, color: "red", name: "Falla en sistema de carga 24V",
+        significado: "Falla en el sistema de carga 24 volt.",
+        consecuencias: "Puede perder el control de la propulsión o del equipo.",
+        accion: "Detener el camión en forma segura y solicitar asistencia técnica." },
+      { r: 4, c: 5, color: "yellow", name: "Retardo a nivel continuo",
+        significado: "Retardo a nivel continuo.",
+        consecuencias: "Operar un tiempo prolongado puede ocasionar daños en el sistema de propulsión o retardo (MT, resistencias, inversores, etc.).",
+        accion: "Bajar la velocidad, modificar pendientes de trabajo, o bajar el esfuerzo de retardo." },
+      { r: 4, c: 6, color: "yellow", name: "Advertencia de servicio o mantenimiento",
+        significado: "Advertencia de servicio o mantenimiento.",
+        consecuencias: "Daños en los sistemas del equipo.",
+        accion: "Solicitar asistencia técnica." }
+    ];
+
+    const colXs = [80, 235, 386, 536, 682, 825, 958];
+    const rowYs = [76, 215, 350, 484, 615];
+    const cropSize = 112;
+
+    const baseImg = new Image();
+    baseImg.src = panelImgUrl;
+
+    function getCropDataUrl(r, c) {
+      const canvas = document.createElement('canvas');
+      canvas.width = cropSize;
+      canvas.height = cropSize;
+      const ctx = canvas.getContext('2d');
+      const sx = colXs[c] - cropSize / 2;
+      const sy = rowYs[r] - cropSize / 2;
+      ctx.drawImage(baseImg, sx, sy, cropSize, cropSize, 0, 0, cropSize, cropSize);
+      return canvas.toDataURL('image/jpeg', 0.9);
+    }
+
+    baseImg.onload = () => {
+      lightsData.forEach(item => {
+        item.imgUrl = getCropDataUrl(item.r, item.c);
+      });
+      buildGrid();
+    };
+
+    function buildGrid() {
+      const container = document.getElementById("gridContainer");
+      container.innerHTML = "";
+      const rows = [0, 1, 2, 3, 4];
+
+      rows.forEach(r => {
+        const rowDiv = document.createElement("div");
+        rowDiv.className = `panel-row ${r < 3 ? 'panel-row-6' : 'panel-row-7'}`;
+        
+        const items = lightsData.filter(d => d.r === r);
+        items.forEach(item => {
+          const btn = document.createElement("div");
+          btn.className = `btn-light ${item.color}`;
+          btn.innerHTML = `<img src="${item.imgUrl}" alt="${item.name}">`;
+          btn.onclick = () => openLight(item);
+          rowDiv.appendChild(btn);
+        });
+        container.appendChild(rowDiv);
+      });
+    }
+
+    function openLight(item) {
+      if (item.color === 'disabled') return;
+      if (window.navigator.vibrate) window.navigator.vibrate(20);
+
+      document.getElementById("mImg").src = item.imgUrl;
+      document.getElementById("mTitle").innerText = item.name;
+      document.getElementById("mSignificado").innerText = item.significado;
+      document.getElementById("mConsecuencias").innerText = item.consecuencias;
+      document.getElementById("mAccion").innerText = item.accion;
+
+      const notaBox = document.getElementById("mNotaContainer");
+      if (item.nota) {
+        document.getElementById("mNota").innerText = item.nota;
+        notaBox.style.display = "block";
+      } else {
+        notaBox.style.display = "none";
+      }
+
+      document.getElementById("modalOverlay").classList.add("active");
+    }
+
+    function closeModal() {
+      document.getElementById("modalOverlay").classList.remove("active");
+    }
+  </script>
+</body>
+</html>
